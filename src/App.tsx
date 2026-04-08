@@ -18,21 +18,13 @@ import {
 import { 
   collection, 
   query, 
-  where, 
   getDocs, 
-  orderBy, 
+  where,
   limit, 
   addDoc, 
   onSnapshot
 } from 'firebase/firestore';
-import { 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  onAuthStateChanged, 
-  signOut,
-  User as FirebaseUser
-} from 'firebase/auth';
-import { db, auth } from './firebase';
+import { db } from './firebase';
 import { cn, formatDate } from './lib/utils';
 import { exportToExcel } from './lib/excel';
 
@@ -57,8 +49,7 @@ interface MessageRecord {
 }
 
 export default function App() {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('conversations');
   
   // Filters
@@ -72,16 +63,6 @@ export default function App() {
   const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-
     const q = query(collection(db, 'users'), limit(50));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({
@@ -92,18 +73,11 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, []);
 
-  const handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error('Login failed:', error);
-    }
+  const handleLogout = () => {
+    alert('已移除登录功能');
   };
-
-  const handleLogout = () => signOut(auth);
 
   const filteredRecords = useMemo(() => {
     return records.filter(r => {
@@ -256,30 +230,6 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="mb-8 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg">
-            <ShieldCheck size={28} />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">AI CMS Backend</h1>
-        </div>
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl shadow-gray-200/50">
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">管理员登录</h2>
-          <p className="mb-8 text-gray-500">请使用管理员账号登录以访问后台管理系统。</p>
-          <button
-            onClick={handleLogin}
-            className="flex w-full items-center justify-center gap-3 rounded-xl bg-blue-600 px-4 py-3 font-medium text-white transition-all hover:bg-blue-700 active:scale-[0.98]"
-          >
-            <img src="https://www.google.com/favicon.ico" className="h-5 w-5 rounded-full bg-white p-0.5" alt="Google" />
-            使用 Google 账号登录
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-screen bg-[#F0F2F5] font-sans text-gray-900">
       {/* Sidebar */}
@@ -331,14 +281,13 @@ export default function App() {
 
         <div className="border-t border-gray-800 p-4">
           <div className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-white/5">
-            <img src={user.photoURL || ''} className="h-8 w-8 rounded-full" alt="User" />
-            <div className="flex-1 overflow-hidden">
-              <p className="truncate text-sm font-medium text-white">{user.displayName}</p>
-              <p className="truncate text-xs text-gray-500">{user.email}</p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white text-xs font-bold">
+              Admin
             </div>
-            <button onClick={handleLogout} className="text-gray-500 hover:text-white">
-              <LogOut size={16} />
-            </button>
+            <div className="flex-1 overflow-hidden">
+              <p className="truncate text-sm font-medium text-white">系统管理员</p>
+              <p className="truncate text-xs text-gray-500">admin@hellotalk.com</p>
+            </div>
           </div>
         </div>
       </aside>
