@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId
+    // Fields:
+    //   - userId: string (required)
+    //   - registrationTime: string (required, ISO 8601)
+    //   - appType: string (optional)
+    //
+    // Collection: messages
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required)
+    //   - appType: string (required)
+    //   - role: string (required, AI/User)
+    //   - content: string (required)
+    //   - scene: string (optional)
+    //   - timestamp: string (required, ISO 8601)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "sukiiii1031@gmail.com" && request.auth.token.email_verified == true);
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

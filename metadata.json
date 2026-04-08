@@ -1,0 +1,5 @@
+{
+  "name": "AI CMS Backend - User Conversation Manager",
+  "description": "A comprehensive CMS module for monitoring and exporting user conversation data across multiple AI applications (Spanish Ai, Japanese Ai, Talksy).",
+  "requestFramePermissions": []
+}

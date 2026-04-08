@@ -1,0 +1,40 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Basic user information for the CMS",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Unique identifier for the user" },
+        "registrationTime": { "type": "string", "format": "date-time", "description": "When the user registered" },
+        "appType": { "type": "string", "enum": ["Spanish Ai", "Japanese Ai", "Talksy"], "description": "The AI application the user is using" }
+      },
+      "required": ["userId", "registrationTime"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "A single message in a conversation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user who sent/received the message" },
+        "appType": { "type": "string", "enum": ["Spanish Ai", "Japanese Ai", "Talksy"], "description": "The AI application" },
+        "role": { "type": "string", "enum": ["AI", "User"], "description": "Who sent the message" },
+        "content": { "type": "string", "description": "The message text" },
+        "scene": { "type": "string", "description": "The context/module of the conversation" },
+        "language": { "type": "string", "description": "The language of the conversation" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the message was sent" }
+      },
+      "required": ["userId", "appType", "role", "content", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User profiles"
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "Message" },
+      "description": "Flat list of all conversation messages for easy filtering and export"
+    }
+  }
+}
